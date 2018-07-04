@@ -9,6 +9,12 @@ highlightTheme: "darkula"
 
 ---
 
+## 组件
+* controller-manager
+    * 通过apiserver管理集群的整个状态，比如某个节点down掉了，manager会负责把它拉起来
+
+---
+
 ## kubectl常用命令
 
 ```
@@ -63,6 +69,25 @@ https://www.mankier.com/1/kubectl-set-env
   env | grep RAILS_ | kubectl set env -e - deployment/registry
 ```
 <!-- .element style="font-size: 18px;" -->
+
+---
+
+## Certificate & Authentication
+
+* 认证：我需要知道你是谁
+* 授权：知道你是谁后，我才能给你权利
+
+--
+
+容器内进程访问需要通过ServiceAccount进行授权，需要注意几点：
+* apiserver启动时一定要有--admission-control=AlwaysAdmit,ServiceAccount
+* 通过get pod <pod_name> -o yaml可以看到对应的service account信息
+* 如果使用serviceaccount无法访问apiserver时（401），尝试作如下处理
+
+```
+1: 重新启动apiserver
+2: 确认相关模板文件中没有依赖--tls-cert-file或者--tls-private-key-file，如果依赖了，看是否需要和apiserver的证书一致，一般需要一致的，是具体应用的访问形式而定。如果是属于类似apiserver的访问形式，依赖于service account的token，就需要使用相同的证书和私钥
+```
 
 ---
 
@@ -157,5 +182,59 @@ dial tcp 127.0.0.1:8080: connect: connection refused
 KUBERNETES_MASTER=<ip:port>
 ```
 
+--
+
+<!-- .slide: style="text-align: left;" -->
+问题：
+```
+ingress如何支持对后端https服务的代理支持（nginx)
+```
+
+解决：
+* 需要单独的ingress config，因为需要在annotation中加入相关与http冲突性的配置
+* 创建ingress的文件内参考如下：
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/force-ssl-redirect: "true"
+    ingress.kubernetes.io/ssl-passthrough: "true"
+    ingress.kubernetes.io/ssl-redirect: "false"
+    kubernetes.io/ingress.class: nginx
+    ## 这个很关键，起着决定作用，通过ssl的方式访问后端
+    nginx.ingress.kubernetes.io/secure-backends: "true"
+  creationTimestamp: 2018-07-03T03:52:17Z
+  generation: 3
+  name: kubernetes-cockpit
+  namespace: default
+  resourceVersion: "315584"
+  selfLink: /apis/extensions/v1beta1/namespaces/default/ingresses/kubernetes-cockpit
+  uid: 7a9887a2-7e74-11e8-b386-0800278dc04d
+spec:
+  backend:
+    serviceName: kubernetes-cockpit
+    servicePort: 443
+  tls:
+  - hosts:
+    - cockpit.jdevops.com
+status:
+  loadBalancer:
+    ingress:
+    - {}
+```
+
+--
+
+<!-- .slide: style="text-align: left;" -->
+问题：
+```
+specified privileged container, but is disallowed
+```
+
+解决：
+```
+apiserver kubelet启动时都需要加上--allow-privileged=true
+```
 
 

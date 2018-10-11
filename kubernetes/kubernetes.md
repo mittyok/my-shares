@@ -91,6 +91,15 @@ https://www.mankier.com/1/kubectl-set-env
 
 ---
 
+## Gitlab install
+```
+helm init
+helm repo add gitlab https://charts.gitlab.io
+helm install --name gitlab --set gitlab=CE gitlab/gitlab-omnibus
+```
+
+---
+
 ## 好工具
 
 --
@@ -237,4 +246,82 @@ specified privileged container, but is disallowed
 apiserver kubelet启动时都需要加上--allow-privileged=true
 ```
 
+--
+
+<!-- .slide: style="text-align: left;" -->
+问题：
+```
+coredns stubdomains proxy config
+```
+
+解决：
+```
+.:53 {
+        errors
+        health
+        kubernetes cluster.local  in-addr.arpa ip6.arpa {
+           upstream  8.8.8.8 8.8.4.4
+           pods insecure
+           fallthrough in-addr.arpa ip6.arpa
+        }
+        federation cluster.local {
+           foo foo.feddomain.com
+        }
+        prometheus :9153
+        proxy .  8.8.8.8 8.8.4.4
+        cache 30
+    }
+    abc.com:53 {
+        errors
+        cache 30
+        proxy . 1.2.3.4
+    }
+    my.cluster.local:53 {
+        errors
+        cache 30
+        proxy . 2.3.4.5
+    }
+```
+
+--
+
+<!-- .slide: style="text-align: left;" -->
+问题：
+```
+grafana export all dashboards at once
+```
+
+解决：
+```
+参考：https://blog.dictvm.org/export-all-grafana-graphs/
+```
+
+--
+
+<!-- .slide: style="text-align: left;" -->
+问题：
+```
+kubectl top pod resources
+```
+
+解决：
+```
+使用heapster，参考：
+https://www.mankier.com/1/kubectl-top-pod
+```
+
+--
+
+<!-- .slide: style="text-align: left;" -->
+问题：
+```
+kubectl connect remote cluster
+```
+
+解决：
+```
+kubectl config set-cluster <cluster-name> --server=<server-url>
+kubectl config set-context <context-name> --cluster=<cluster-name>
+kubectl config use-context <context-name>
+```
 

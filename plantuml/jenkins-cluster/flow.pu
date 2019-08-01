@@ -1,0 +1,69 @@
+@startuml
+autonumber
+
+actor "Client" as client
+participant "Gateway" as gw
+participant "SSA Server" as ssa
+participant "Jenkins Master" as master
+database "Database" as db
+database "Cache" as cache
+
+client -> gw: try to access resource
+gw -> ssa: check sso ticket
+ssa --> gw: client login state
+alt client not logined in
+    gw --> client: redirect to login page
+    client -> ssa: access login page
+    ssa --> client: login page
+    client -> ssa: input erp info to login form and submit
+    ssa -> ssa: check the user login form
+    alt right user
+        ssa --> client: redirect to last access resource with sso cookie
+    else
+        ssa --> client: alert not right user
+    end
+else
+    gw --> client: index page
+    note right: user can create or list groups and can jump to jenkins master
+    group group manage or other operations
+    client -> gw: create groups, list groups, list master in group ...
+    gw -> db: persist group or others config
+    gw --> client: right info
+    end
+    client -> gw: jump to jenkins
+    gw -> cache: get current master for this user
+    cache --> gw: current master
+    gw -> cache: get master cookies for this user
+    cache --> gw: master cookies
+    alt no cookies
+        gw -> master: login to master for client
+        master --> gw: login info and cookies
+    end 
+    gw -> master: access current master with cookies
+    master --> gw: resource
+    gw -> db: get master host
+    gw --> client: master resource with master host
+    client -> gw: do anything allowed in master node
+    gw -> master: reverse proxy client request to master
+    master --> gw: response
+    gw --> client: response
+end
+
+' user -> browser : Visit the Reseller UI login page
+' browser -> reseller_ui : Retrieve the Reseller UI login page
+' browser <- reseller_ui : Return the login page with form field \nusername, password, and One Time Password(OTP)
+' user <- browser : Display the page, wait for user input
+' user -> user: Recall username and password \nfrom memory
+' user -> browser : Fill in the username and password field
+' user -> user: Open Google Authenticator, \nread the OTP
+' user -> browser : Fill in the OTP, and hit the send button
+' browser -> reseller_ui : Send the username, password and OTP
+' reseller_ui -> reseller_ui : Verify the information is valid
+' alt Login valid
+'     browser <- reseller_ui : Return the logged in page
+'     user <- browser : Display the logged in page
+' else Login invalid
+'     browser <- reseller_ui : Return login failure page
+'     user <- browser : Display the login failure page
+' end
+@enduml

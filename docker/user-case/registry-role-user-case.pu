@@ -1,0 +1,67 @@
+@startuml
+
+left to right direction
+
+actor "User" <<User>> as User
+actor "Administrator" <<User>> as Admin
+actor "Developer" <<User>> as Dev
+actor "Namespace Owner" <<User>> as NSOwner
+actor "Guest" <<User>> as Guest
+' actor "Robot" <<Robot>> as Robot
+
+User <|-right- Guest
+Guest <|-right- Dev
+Dev <|-right- NSOwner
+NSOwner <|-right- Admin
+
+
+' component "Designer" <<Application>> as CQD
+
+
+rectangle Role {
+    (Create Role) as Create
+    (Update Role) as Update
+    (Delete Role) as Delete
+    (Get Role Info) as Get
+    (List Role) as List
+    (Add Actions) as AddActions
+    (Update Actions) as UpdateActions
+    (Delete Actions) as DeleteActions
+
+    Admin -down-> Create
+    Admin -> Update
+    Admin -> Delete
+    Admin -> Get
+    Admin -> List
+    Admin -> AddActions
+    Admin -> UpdateActions
+    Admin -> DeleteActions
+}
+
+' Rectangle {
+'     (Create Namespace) <-- Namespace
+'     (Update Namespace) <-- Namespace
+'     (Delete Namespace) <-- Namespace
+'     (Get Namespace) <-- Namespace
+'     (List Namespace) <-- Namespace
+' }
+
+' ADEV -down-> UC1
+' UC1 -left-> CQD
+' UC1 -> CQR
+' AEXPR -down-> UC2
+' UC2 -down-> CQD
+' UC3 -up-> CQD
+' ADEVOP -up-> UC3
+' ADEVOP -> UC4
+' UC4 -right-> CMB
+' ASUBSCR -down-> UC5
+' UC5 -down-> CMB
+' ASUBSCR -up-> UC6
+' UC6 -up-> CQR
+' UC7 -down-> CQR
+' AWF -down-> UC7
+' UC8 -left-> CQR
+' ASUBSCR -up-> UC8
+
+@enduml

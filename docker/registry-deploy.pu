@@ -1,0 +1,57 @@
+@startuml
+skinparam backgroundcolor transparent
+
+left to right direction
+
+
+
+
+rectangle JDockerRegistry-Deployment {
+
+    artifact JDockerRegistryJar
+    artifact DockerRegistryBin
+
+    node DBServer {
+        database Database
+        database CacheServer
+    }
+    
+    cloud JSSServer {
+        storage RegistryStorage
+    }
+    
+    node JDockerRegistry {
+        component JDockerRegistryServer {
+            rectangle WebUI
+            rectangle AdminServer
+            rectangle AuthServer
+        }
+    }
+
+    node Gateway
+    node DockerRegistryServer
+
+    JDockerRegistryJar --> JDockerRegistryServer
+    DockerRegistryBin -up-> DockerRegistryServer
+
+    Gateway --> WebUI : http
+    Gateway --> DockerRegistryServer : http
+    WebUI -down-> AuthServer
+    WebUI -down-> AdminServer
+    AuthServer <-left- DockerRegistryServer : http
+    AuthServer -right-> AdminServer 
+    AuthServer -down-> Database
+    AuthServer -down-> CacheServer
+    AuthServer -down-> RegistryStorage
+    AdminServer --> Database
+}
+
+
+agent client1
+agent client2
+
+client1 -down-> Gateway : https
+client2 -down-> Gateway : https
+
+
+@enduml

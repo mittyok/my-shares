@@ -1,0 +1,52 @@
+@startuml
+autonumber
+
+actor "User" as User
+participant "Gateway" as Gateway
+participant "Server" as Server
+database "Storage" as Storage
+
+User -> Gateway : Request API
+Gateway -> Gateway : Check User Token
+alt : has no Token, first auth 
+    Gateway -> Gateway : Create token with Authentication
+    Gateway --> User : Return the new Token
+else : has Token
+    Gateway -> Server : Request API
+    Server -> Storage : Handle data
+    Storage --> Server : Return right thing
+    Server --> Gateway : Return Response
+    Gateway --> User : Return Response
+end
+
+
+
+
+' cm -> cm : search local cache
+' alt : not found
+'     cm -> fs : download from source
+'     cm -> cm : split file to blocks
+' end
+' cm -> host1 : notify host download some blocks
+' cm -> host2 : notify host download some blocks
+' host1 <--> host2 : download some blocks
+
+
+' user -> browser : Visit the Reseller UI login page
+' browser -> reseller_ui : Retrieve the Reseller UI login page
+' browser <- reseller_ui : Return the login page with form field \nusername, password, and One Time Password(OTP)
+' user <- browser : Display the page, wait for user input
+' user -> user: Recall username and password \nfrom memory
+' user -> browser : Fill in the username and password field
+' user -> user: Open Google Authenticator, \nread the OTP
+' user -> browser : Fill in the OTP, and hit the send button
+' browser -> reseller_ui : Send the username, password and OTP
+' reseller_ui -> reseller_ui : Verify the information is valid
+' alt Login valid
+'     browser <- reseller_ui : Return the logged in page
+'     user <- browser : Display the logged in page
+' else Login invalid
+'     browser <- reseller_ui : Return login failure page
+'     user <- browser : Display the login failure page
+' end
+@enduml

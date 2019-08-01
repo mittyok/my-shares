@@ -135,15 +135,41 @@ Note:
 
 ---
 
+## 其它工具
+
+
+
+---
+
+## 为什么要自己搞事情
+- 需要自己的业务适配模型
+- 需要与自有系统打通，如与我们未来的群组管理系统，部署系统，JONE等
+- 需要较为灵活的定制能力
+
+---
+
 ## 我们要做什么
 
 ---
 
 ### 组件
+- Gateway: 提供服务统一入口及统一授权
 - UI: 前端界面
+- docker-registry: 镜像管理服务
+- jdocker-auth: 授权中心
 - jdocker-registry: 后端服务
 - Mysql: 数据存储
 - Redis: 数据缓存
+
+---
+
+### 架构
+![](jdocker-registry-arch.png)
+
+---
+
+### HA
+![](jdocker-registry-ha.png)
 
 ---
 
@@ -151,9 +177,10 @@ Note:
 - 用户登录授权
 - 空间管理：名称、描述、私有或者公有
 - 空间授权：给组或者个人授权（admin,pull,push)
-- 镜像授权：给组或者个人授权（admin,pull,push)
+- ~~镜像授权：给组或者个人授权（admin,pull,push)~~
 - 共享镜像存储：jss云存储
 - 审计日志：用户的操作记录，包括配置管理镜像操作等
+- Label: 支持添加Label到镜像和镜像过滤
 
 ---
 
@@ -167,7 +194,7 @@ Note:
 
 ### 三期 1w
 - 安全扫描：超过一定安全级别的镜像不能pull
-- 支持通过Dockerfile编译镜像
+- ~~支持通过Dockerfile编译镜像~~
 - 支持设置callback：pull,push等事件
 
 ---

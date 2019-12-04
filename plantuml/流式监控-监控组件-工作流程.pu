@@ -1,0 +1,28 @@
+@startuml
+autonumber
+
+actor "Node" as node
+participant "Broker" as broker
+participant "Monitor" as monitor
+
+node -> broker: try to get a task
+broker --> node: return a task
+alt task is null
+    node -> broker: try to get the finished task counter
+    broker --> node: return the counter
+    alt the counter is equal with prepared tasks or counter is not existed
+        node -> broker: try to get a lock for preparing tasks
+        broker --> node: return the lock
+        alt get lock success
+            node -> node: prepare tasks
+            node -> broker: put prepared tasks
+        end
+    end
+else task is not null
+    node -> node: do the task
+    alt task is finished
+        node -> node: increment the finished task counter
+        node -> broker: put the counter with a timeout
+    end
+end
+@enduml
